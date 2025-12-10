@@ -370,28 +370,28 @@ def show_voting_screen(images_df: pd.DataFrame):
             st.session_state.current_index += 1
             st.rerun()
     
-    # Keyboard shortcut handler
-    st.markdown("""
+    # Keyboard shortcut handler using components.html for JS execution
+    import streamlit.components.v1 as components
+    components.html("""
     <script>
-    document.addEventListener('keydown', function(e) {
+    const doc = window.parent.document;
+    doc.addEventListener('keydown', function(e) {
         // Ignore if user is typing in an input field
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
         const key = e.key.toLowerCase();
+        const buttons = doc.querySelectorAll('button[kind="secondary"], button[kind="primary"]');
+
         if (key === 'n') {
-            const btn = document.querySelector('[data-testid="stButton"] button[kind="secondary"]');
-            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
             buttons.forEach(b => { if (b.innerText.includes('No')) b.click(); });
         } else if (key === 'h') {
-            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
             buttons.forEach(b => { if (b.innerText.includes('Maybe')) b.click(); });
         } else if (key === 'y') {
-            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
             buttons.forEach(b => { if (b.innerText.includes('Yes')) b.click(); });
         }
     });
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
     # Keyboard hints
     st.markdown(
