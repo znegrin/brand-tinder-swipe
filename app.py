@@ -352,15 +352,15 @@ def show_voting_screen(images_df: pd.DataFrame):
         st.rerun()
     
     with col1:
-        if st.button("👎 No", use_container_width=True, key="btn_no"):
+        if st.button("👎 No (N)", use_container_width=True, key="btn_no"):
             handle_vote("no")
-    
+
     with col2:
-        if st.button("🤔 Maybe", use_container_width=True, key="btn_maybe"):
+        if st.button("🤔 Maybe (H)", use_container_width=True, key="btn_maybe"):
             handle_vote("maybe")
-    
+
     with col3:
-        if st.button("👍 Yes", use_container_width=True, type="primary", key="btn_yes"):
+        if st.button("👍 Yes (Y)", use_container_width=True, type="primary", key="btn_yes"):
             handle_vote("yes")
     
     # Skip button for broken content
@@ -370,9 +370,32 @@ def show_voting_screen(images_df: pd.DataFrame):
             st.session_state.current_index += 1
             st.rerun()
     
+    # Keyboard shortcut handler
+    st.markdown("""
+    <script>
+    document.addEventListener('keydown', function(e) {
+        // Ignore if user is typing in an input field
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const key = e.key.toLowerCase();
+        if (key === 'n') {
+            const btn = document.querySelector('[data-testid="stButton"] button[kind="secondary"]');
+            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
+            buttons.forEach(b => { if (b.innerText.includes('No')) b.click(); });
+        } else if (key === 'h') {
+            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
+            buttons.forEach(b => { if (b.innerText.includes('Maybe')) b.click(); });
+        } else if (key === 'y') {
+            const buttons = document.querySelectorAll('[data-testid="stButton"] button');
+            buttons.forEach(b => { if (b.innerText.includes('Yes')) b.click(); });
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
+
     # Keyboard hints
     st.markdown(
-        '<p class="keyboard-hint">💡 Tip: Go with your gut feeling!</p>',
+        '<p class="keyboard-hint">💡 Tip: Use keyboard shortcuts N / H / Y to vote quickly!</p>',
         unsafe_allow_html=True
     )
 
