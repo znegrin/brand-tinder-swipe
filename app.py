@@ -221,7 +221,10 @@ def get_aggregate_stats():
     ).reset_index()
     
     stats["yes_percentage"] = (stats["yes_votes"] / stats["total_votes"] * 100).round(1)
-    stats = stats.sort_values("yes_percentage", ascending=False)
+    # Weighted score: yes_percentage * log(total_votes + 1) to balance approval rate with sample size
+    import numpy as np
+    stats["weighted_score"] = stats["yes_percentage"] * np.log1p(stats["total_votes"])
+    stats = stats.sort_values(["weighted_score", "yes_percentage"], ascending=[False, False])
     
     return stats
 
@@ -481,14 +484,14 @@ def show_end_screen(images_df: pd.DataFrame):
         top_images = agg_stats.head(10).copy()
         
         # Display top results as an interactive list
-        for i, row in top_images.iterrows():
+        for rank, (_, row) in enumerate(top_images.iterrows(), start=1):
             label_text = row['label'] if pd.notna(row['label']) and str(row['label']).strip() else row['image_id']
-            score = f"{row['yes_percentage']}% Yes"
-            
-            with st.expander(f"#{i+1} {label_text} — {score}"):
+            score = f"{row['yes_percentage']}% Yes ({row['total_votes']} votes)"
+
+            with st.expander(f"#{rank} {label_text} — {score}"):
                 file_path = get_image_path(row['url'])
                 render_media_content(file_path)
-                st.caption(f"Votes: {row['yes_votes']} Yes, {row['no_votes']} No, {row['maybe_votes']} Maybe")
+                st.caption(f"Votes: {int(row['yes_votes'])} Yes, {int(row['no_votes'])} No, {int(row['maybe_votes'])} Maybe")
         
         # Total stats
         total_votes = agg_stats["total_votes"].sum()
