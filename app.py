@@ -556,7 +556,13 @@ def main():
             admin_password = st.text_input("Admin Password", type="password")
             if admin_password == "zenml-brand":  # Simple hardcoded password
                 st.success("Access Granted")
-                
+
+                if st.button("📊 View Results"):
+                    st.session_state.user_name = "Admin"
+                    st.session_state.started = True
+                    st.session_state.finished = True
+                    st.rerun()
+
                 if st.button("🗑️ Clear All Votes", type="primary"):
                     if os.path.exists(VOTES_CSV):
                         try:
